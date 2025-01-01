@@ -1,14 +1,26 @@
-# Welcome to your CDK TypeScript project
+# Connecting to EC2 via Session Manager
 
-This is a blank project for CDK development with TypeScript.
+A simple infrastructure where we can connect to an EC2 via session manager.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+For connecting to an EC2 via Session Manager only requires configuration at the instance level.
 
-## Useful commands
+We need to add a managed policy `AmazonSSMManagedInstanceCore`, and we also need to use an instance that has the ssm-agent installed.
 
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `npx cdk deploy`  deploy this stack to your default AWS account/region
-* `npx cdk diff`    compare deployed stack with current state
-* `npx cdk synth`   emits the synthesized CloudFormation template
+Role:
+
+```typescript
+role: new Role(scope, "Role", {
+  assumedBy: new ServicePrincipal("ec2.amazonaws.com"),
+  managedPolicies: [
+    ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMManagedInstanceCore"),
+  ],
+}),
+```
+
+Image:
+
+```typescript
+machineImage: new AmazonLinuxImage({
+  generation: AmazonLinuxGeneration.AMAZON_LINUX_2,
+}),
+```
